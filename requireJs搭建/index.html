@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>RequireJs</title>
+<link rel="stylesheet" href="css/dialog.css" />
+</head>
+
+<body>
+<div class="filter"></div>
+<div id="dialog" class="dialog">
+	<div class="dialog_inner">
+        <div class="dialog_header">提示</div>
+        <div class="dialog_body">您确定要删除吗？</div>
+        <div class="dialog_footer">
+            <a href="#" class="btn btn-true">确认</a>
+            <a href="#" class="btn btn-cancel">取消</a>
+        </div>
+        <a href="#" class="btn btn-close">×</a>
+    </div>
+</div>
+<script src="js/jquery-1.8.3.min.js"></script>
+<script src="js/require-2.1.18.js" data-main="js/main"></script>
+<script>
+$(function(){
+	//设置弹窗居中
+	var winwidth = $(window).width();
+	var winheight = $(window).height();
+	var dwidth = $("#dialog").innerWidth();
+	var dheight = $("#dialog").innerHeight();
+	var newdwidth = (winwidth - dwidth)/2;
+	var newdheight = (winheight - dheight)/2;
+	$("#dialog").css({"left":newdwidth,"top":newdheight});
+	
+		
+	var $drag = null;
+	var leftnum = 0;
+	var topnum = 0;  
+
+	//鼠标左键按下去，移动鼠标，元素会跟着我们移动
+		//获取需要操作的元素，并且确定 mousedown 事件
+		$(".dialog_header").mousedown(function(e){
+			var $dialog = $("#dialog");
+			$drag = $dialog;
+			leftnum = e.pageX - $drag.offset().left;
+			topnum = e.pageY - $drag.offset().top;
+			//alert(leftnum + ":" + topnum);
+		});
+		
+		$(document).mousemove(function(e){
+				var left = e.pageX;
+				var top = e.pageY;
+				
+				if($drag !== null){
+					var maxleft = $(window).width() -  $drag.innerWidth();
+					var maxtop = $(window).height() - $drag.innerHeight(); 
+					var t = Math.min(Math.max((top - topnum),0),maxtop);
+					var l = Math.min(Math.max((left - leftnum),0),maxleft);
+					$drag.css({"top":t,"left":l});
+				}
+				
+			});
+	
+	//当鼠标松开后，元素不动
+	$(document).mouseup(function(){
+		$drag  = null;
+	});	
+	
+	document.body.onselectstart = document.body.ondrag = function(){
+    	return false;
+	}	
+});
+</script>
+</body>
+</html>

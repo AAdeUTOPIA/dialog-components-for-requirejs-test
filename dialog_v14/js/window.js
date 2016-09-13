@@ -1,0 +1,108 @@
+/*
+* 定义window模块
+* //requireJs默认将文件名和模块名有一个对应关系；在底下会自动去找jquery.js这个文件,然后动态把它加载进来
+* //有时候我们下载的jquery会带着版本号等，它不是直接的jquery.js,它带版本号和压缩等，我们不需要在define上写一个带一大串版本号的文件，不存在直接的映射关系
+* //如果没有可以指明，默认是模块名和文件名刚好对应
+* //手动的指定映射关系，require.config
+* 把jquery
+*/
+//连缀语法的关键：然后this
+define(['widget','jquery','jqueryUI'],function(widget,$,$UI){
+
+	function Window(){
+		//config是个字典格式，这里（构造函数中）用于设置默认值
+		this.config = {
+			title : '系统消息',
+			width : 500,
+			height: 'auto',
+			content: '',
+			hasCloseBtn : false,
+			hasMask : true,
+			isDraggable: true,
+			dragHandle : null,
+			textForAlertBtn : '确定',
+			skinClassName : null,
+			handlerForAlert : null,
+			handlerForClose : null
+		};
+		
+		//1、定义一个空子低昂
+		this.handlers = {};
+	};
+	
+	//$.extend把一个大的字典混合成一个新的字典
+	Window.prototype = $.extend({},new widget.Widget(),{
+		renderUI : function(){
+			var boundingBox_html = '';
+				boundingBox_html += '<div class="window_boundingBox">';
+					boundingBox_html += '<div class="window_header">'+this.config.title+'</div>';
+					boundingBox_html += '<div class="window_body">'+this.config.content+'</div>';
+					boundingBox_html += '<div class="window_footer"><input type="button" value="'+this.config.textForAlertBtn+'" class="window_alertBtn" /></div>';
+				boundingBox_html += '</div>';
+			this.boundingBox = $(boundingBox_html);
+			
+			if(this.config.hasMask){
+				this._mask = $('<div class="window_mask"></div>');
+				this._mask.appendTo("body");
+			}
+			
+			if(this.config.hasCloseBtn){
+				this.boundingBox.append('<span class="window_closeBtn">×</span>');
+			}
+			
+			this.boundingBox.appendTo(document.body);
+		},
+		bindUI : function(){
+			var that = this;
+			
+			this.boundingBox.delegate(".window_alertBtn","click",function(){
+				that.fire("alert");
+				that.destroy();
+			}).delegate(".window_closeBtn","click",function(){
+				that.fire("close");
+				that.destroy();
+			});
+			
+			if(this.config.handlerForClose){
+				this.on("close",this.config.handlerForClose);
+			}
+			
+			if(this.config.handlerForAlert){
+				this.on("alert",this.config.handlerForAlert);
+			};
+		},
+		syncUI : function(){
+			this.boundingBox.css({
+				width : this.config.width + 'px',
+				height: this.config.height+ 'px',
+				left  : (this.config.x || (window.innerWidth - this.config.width) / 2) + 'px',
+				top   : (this.config.y || (window.innerHeight - this.config.height) / 2) + 'px'   	
+			});
+			
+			if(this.config.skinClassName){
+				this.boundingBox.addClass(this.config.skinClassName);
+			}
+			
+			if(this.config.isDraggable){
+				if(this.config.dragHandle){
+					this.boundingBox.draggable({handle:this.config.dragHandle});
+				}else{
+					this.boundingBox.draggable();
+				}
+				
+			}
+		},
+		destructor : function(){
+			this._mask && this._mask.remove();
+		},
+		alert : function(config){
+			$.extend(this.config,config);
+			this.render();
+			return this;
+		}
+	});
+	
+	return {Window : Window};
+});
+
+

@@ -1,0 +1,4 @@
+
+.window_boundingBox{width:500px; height:300px; border:1px solid #000000; position:fixed; left:50%; margin-left:-250px; top:100px; box-shadow:0 0 5px rgba(0,0,0,.5);}
+
+.window_boundingBox input{width:100px; position:absolute; left:50%; margin-left:-50px; bottom:10px;}
